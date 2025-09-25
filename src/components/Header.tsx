@@ -32,6 +32,12 @@ const Header = () => {
             Galería
           </button>
           <button 
+            onClick={() => scrollToSection('conciencia')}
+            className="text-foreground hover:text-primary transition-colors"
+          >
+            Conciencia Animal
+          </button>
+          <button 
             onClick={() => scrollToSection('agendar')}
             className="text-foreground hover:text-primary transition-colors"
           >
