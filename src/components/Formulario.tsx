@@ -91,7 +91,7 @@ const BookingForm = () => {
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-foreground">
-            Agenda tu <span className="bg-gradient-primary bg-clip-text text-transparent">Cita</span>
+            Agenda tu <span className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] bg-clip-text text-transparent">Cita</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Completa el formulario y nos pondremos en contacto contigo para confirmar tu cita.
@@ -125,32 +125,17 @@ const BookingForm = () => {
                   />
                 </div>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-foreground font-medium">Teléfono *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="Ej: +56 9 1234 5678"
-                    className="bg-background border-border"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-foreground font-medium">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="tu@email.com"
-                    className="bg-background border-border"
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="text-foreground font-medium">Teléfono *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder="Ej: +56 9 1234 5678"
+                  className="bg-background border-border"
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -161,9 +146,9 @@ const BookingForm = () => {
                       <SelectValue placeholder="Selecciona el tamaño" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pequeno">Pequeño (hasta 10kg)</SelectItem>
-                      <SelectItem value="mediano">Mediano (10-25kg)</SelectItem>
-                      <SelectItem value="grande">Grande (25kg+)</SelectItem>
+                      <SelectItem value="pequeno">Pequeño (hasta 5kg)</SelectItem>
+                      <SelectItem value="mediano">Mediano (6-10kg)</SelectItem>
+                      <SelectItem value="grande">Grande (10kg+)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -174,11 +159,11 @@ const BookingForm = () => {
                       <SelectValue placeholder="Selecciona un servicio" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="bano-basico">Baño Básico</SelectItem>
-                      <SelectItem value="bano-premium">Baño Premium</SelectItem>
-                      <SelectItem value="corte-basico">Corte Básico</SelectItem>
-                      <SelectItem value="corte-premium">Corte Premium</SelectItem>
                       <SelectItem value="completo">Servicio Completo</SelectItem>
+                      <SelectItem value="bano-basico">Baño Básico</SelectItem>
+                      <SelectItem value="bano-premium">Baño Sanitario</SelectItem>
+                      <SelectItem value="corte-pelo">Corte de pelo</SelectItem>
+                      <SelectItem value="corte-uña">Corte de uñas</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -211,7 +196,6 @@ const BookingForm = () => {
                       <SelectItem value="14:00">02:00 PM</SelectItem>
                       <SelectItem value="15:00">03:00 PM</SelectItem>
                       <SelectItem value="16:00">04:00 PM</SelectItem>
-                      <SelectItem value="17:00">05:00 PM</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -232,7 +216,7 @@ const BookingForm = () => {
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
-                className="w-full bg-gradient-primary hover:opacity-90 transition-opacity text-lg py-6"
+                className="w-full bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-opacity text-lg py-6"
               >
                 {isSubmitting ? "Enviando..." : "Agendar Cita"}
               </Button>

@@ -6,8 +6,8 @@ const AnimalConsciousness = () => {
     <section id="conciencia" className="py-20 px-4 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-primary bg-clip-text text-transparent">
-            Conciencia Animal
+          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-[#ff418f] to-[#67fdff] bg-clip-text text-transparent">
+            Conciencia animal y cuidados para tu mascota
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             En Guapitos creemos en el bienestar y respeto hacia nuestros amigos peludos. 

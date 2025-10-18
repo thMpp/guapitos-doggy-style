@@ -15,7 +15,7 @@ const Hero = () => {
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-6xl font-bold text-foreground leading-tight">
                 Tu mascota se ve 
-                <span className="bg-gradient-primary bg-clip-text text-transparent"> guapita</span> con nosotros
+                <span className="bg-gradient-to-r from-[#ec82ae] to-[#7ce0f1] bg-clip-text text-transparent"> guapita</span> con nosotros
               </h1>
               <p className="text-xl text-muted-foreground max-w-lg">
                 Peluquería canina profesional donde tu mejor amigo recibe el cuidado y amor que merece. 
@@ -26,7 +26,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
-                className="bg-gradient-primary hover:opacity-90 transition-opacity text-lg px-8 py-6"
+                className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-opacity text-lg px-8 py-6"
                 onClick={() => scrollToSection('agendar')}
               >
                 Agendar Cita

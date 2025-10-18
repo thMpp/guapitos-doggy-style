@@ -1,8 +1,8 @@
 import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import Gallery from "@/components/Gallery";
-import AnimalConsciousness from "@/components/AnimalConsciousness";
-import BookingForm from "@/components/BookingForm";
+import Hero from "@/components/Inicio";
+import Gallery from "@/components/Galeria";
+import AnimalConsciousness from "@/components/Conciencia_Animal";
+import BookingForm from "@/components/Formulario";
 import Footer from "@/components/Footer";
 
 const Index = () => {
