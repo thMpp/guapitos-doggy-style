@@ -57,7 +57,7 @@ const Header = () => {
             onClick={ir_login}
             className="text-foreground hover:text-primary transition-colors"
           >
-            Log In
+            Iniciar Sesión
           </button>
 
         </nav>

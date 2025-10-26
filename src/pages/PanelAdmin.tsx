@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Trash2, Plus, Calendar, Clock, User, Dog, Phone, Search, Filter, CalendarIcon } from "lucide-react";
+import { Trash2, Plus, Calendar, Clock, User, Dog, Phone, Search, Filter, CalendarIcon, Pencil } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -29,43 +29,164 @@ interface Booking {
 const PanelAdmin = () => {
   const { toast } = useToast();
   const [bookings, setBookings] = useState<Booking[]>([
-    {
-      id: "1",
-      ownerName: "María González",
-      petName: "Max",
-      phone: "+56 9 1234 5678",
-      email: "maria@example.com",
-      petSize: "mediano",
-      service: "completo",
-      date: "2025-10-28",
-      time: "09:00",
-      notes: "Max es un poco nervioso con las tijeras"
-    },
-    {
-      id: "2",
-      ownerName: "Carlos Rodríguez",
-      petName: "Luna",
-      phone: "+56 9 8765 4321",
-      email: "carlos@example.com",
-      petSize: "pequeno",
-      service: "bano-basico",
-      date: "2025-10-28",
-      time: "10:00",
-      notes: "Primera vez en peluquería"
-    },
-    {
-      id: "3",
-      ownerName: "Ana Silva",
-      petName: "Rocky",
-      phone: "+56 9 5555 6666",
-      email: "ana@example.com",
-      petSize: "grande",
-      service: "corte-pelo",
-      date: "2025-10-29",
-      time: "11:00",
-      notes: "Le gusta el corte estilo teddy bear"
-    }
-  ]);
+  {
+    id: "1",
+    ownerName: "María González",
+    petName: "Max",
+    phone: "+56 9 1234 5678",
+    email: "maria@example.com",
+    petSize: "mediano",
+    service: "completo",
+    date: "2025-10-28",
+    time: "09:00",
+    notes: "Max es un poco nervioso con las tijeras"
+  },
+  {
+    id: "2",
+    ownerName: "Carlos Rodríguez",
+    petName: "Luna",
+    phone: "+56 9 8765 4321",
+    email: "carlos@example.com",
+    petSize: "pequeno",
+    service: "bano-basico",
+    date: "2025-10-28",
+    time: "10:00",
+    notes: "Primera vez en peluquería"
+  },
+  {
+    id: "3",
+    ownerName: "Ana Silva",
+    petName: "Rocky",
+    phone: "+56 9 5555 6666",
+    email: "ana@example.com",
+    petSize: "grande",
+    service: "corte-pelo",
+    date: "2025-10-29",
+    time: "11:00",
+    notes: "Le gusta el corte estilo teddy bear"
+  },
+  {
+    id: "4",
+    ownerName: "Javier Muñoz",
+    petName: "Toby",
+    phone: "+56 9 9876 5432",
+    email: "javier@example.com",
+    petSize: "pequeno",
+    service: "bano-completo",
+    date: "2025-10-29",
+    time: "12:00",
+    notes: "Tiene alergia al shampoo con fragancia"
+  },
+  {
+    id: "5",
+    ownerName: "Camila Reyes",
+    petName: "Nina",
+    phone: "+56 9 2345 6789",
+    email: "camila@example.com",
+    petSize: "mediano",
+    service: "completo",
+    date: "2025-10-30",
+    time: "09:30",
+    notes: "Nina es muy sociable, le gusta que la cepillen"
+  },
+  {
+    id: "6",
+    ownerName: "Felipe Arancibia",
+    petName: "Bruno",
+    phone: "+56 9 1111 2222",
+    email: "felipe@example.com",
+    petSize: "grande",
+    service: "bano-basico",
+    date: "2025-10-30",
+    time: "11:30",
+    notes: "Traerá su propio collar antitirones"
+  },
+  {
+    id: "7",
+    ownerName: "Laura Pérez",
+    petName: "Coco",
+    phone: "+56 9 4444 5555",
+    email: "laura@example.com",
+    petSize: "pequeno",
+    service: "corte-pelo",
+    date: "2025-10-31",
+    time: "10:00",
+    notes: "Prefiere que usen tijeras, no máquina"
+  },
+  {
+    id: "8",
+    ownerName: "Matías Ortega",
+    petName: "Rex",
+    phone: "+56 9 7777 8888",
+    email: "matias@example.com",
+    petSize: "grande",
+    service: "completo",
+    date: "2025-11-01",
+    time: "13:00",
+    notes: "Rex se asusta con el secador, hacerlo manual"
+  },
+  {
+    id: "9",
+    ownerName: "Paula Herrera",
+    petName: "Luna",
+    phone: "+56 9 9999 0000",
+    email: "paula@example.com",
+    petSize: "mediano",
+    service: "bano-completo",
+    date: "2025-11-01",
+    time: "14:00",
+    notes: "Tiene piel sensible, usar shampoo hipoalergénico"
+  },
+  {
+    id: "10",
+    ownerName: "Tomás Valdés",
+    petName: "Bobby",
+    phone: "+56 9 6666 7777",
+    email: "tomas@example.com",
+    petSize: "pequeno",
+    service: "bano-basico",
+    date: "2025-11-02",
+    time: "09:30",
+    notes: "Es cachorro, primera peluquería"
+  },
+  {
+    id: "11",
+    ownerName: "Sofía Contreras",
+    petName: "Kiara",
+    phone: "+56 9 5555 9999",
+    email: "sofia@example.com",
+    petSize: "mediano",
+    service: "corte-pelo",
+    date: "2025-11-02",
+    time: "11:00",
+    notes: "Quiere corte tipo pomerania"
+  },
+  {
+    id: "12",
+    ownerName: "Rodrigo Castro",
+    petName: "Simba",
+    phone: "+56 9 1020 3040",
+    email: "rodrigo@example.com",
+    petSize: "grande",
+    service: "completo",
+    date: "2025-11-03",
+    time: "15:00",
+    notes: "Perro muy tranquilo, se deja manipular"
+  },
+  {
+    id: "13",
+    ownerName: "Valentina Espinoza",
+    petName: "Maya",
+    phone: "+56 9 5050 6060",
+    email: "valentina@example.com",
+    petSize: "pequeno",
+    service: "bano-completo",
+    date: "2025-11-03",
+    time: "16:00",
+    notes: "Maya tiene ansiedad, pedir cita corta"
+  }
+]);
+
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -152,12 +273,28 @@ const PanelAdmin = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            Panel de Administración
-          </h1>
-          <p className="text-muted-foreground">Gestiona todas las citas agendadas de Guapitos</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold">
+              <span className="inline-block w-fit bg-gradient-to-r from-[#ec82ae] via-[#b58bd0] to-[#81dcee] bg-clip-text text-transparent">
+                Panel de Administración
+              </span>
+            </h1>
+            <p className="text-muted-foreground">
+              Gestiona todas las citas agendadas de Guapitos
+            </p>
+          </div>
+
+          {/* Botón Volver al inicio */}
+          <Button
+            type="button"
+            onClick={() => (window.location.href = "/")}
+            className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-all duration-300 hover:scale-[1.02] text-primary-foreground font-semibold"
+          >
+            Volver al inicio
+          </Button>
         </div>
+
 
         {/* Búsqueda y Filtros */}
         <Card className="p-6 mb-6 border-primary/20 bg-card/95 backdrop-blur-sm">
@@ -235,7 +372,7 @@ const PanelAdmin = () => {
 
               <Button
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Agregar Cita
@@ -372,7 +509,7 @@ const PanelAdmin = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" className="bg-gradient-to-r from-primary to-accent">
+                <Button type="submit" className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc]">
                   Agregar Cita
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
@@ -432,10 +569,23 @@ const PanelAdmin = () => {
 
                   {/* Badges */}
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
+                    <span
+                      className="px-2 py-1 rounded text-xs font-medium"
+                      style={{
+                        backgroundColor: "#EC82AE1A", // color de fondo con opacidad (usar RGBA o HEX con transparencia)
+                        color: "#EC82AE"              // color del texto
+                      }}
+                    >
                       {getServiceLabel(booking.service)}
                     </span>
-                    <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs font-medium">
+
+                    <span
+                      className="px-2 py-1 rounded text-xs font-medium"
+                      style={{
+                        backgroundColor: "#74DBD41A", // color de fondo con opacidad
+                        color: "#74DBD4"              // color del texto
+                      }}
+                    >
                       {getSizeLabel(booking.petSize)}
                     </span>
                   </div>
@@ -456,9 +606,18 @@ const PanelAdmin = () => {
                   size="sm"
                   onClick={() => handleDelete(booking.id)}
                   className="mt-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                >
+                  >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Eliminar
+                </Button>
+                {/* Botón de Modificar */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-auto text-muted-foreground hover:text-[#3B82F6] hover:bg-[#3B82F6]/10"
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Modificar
                 </Button>
               </Card>
             ))
