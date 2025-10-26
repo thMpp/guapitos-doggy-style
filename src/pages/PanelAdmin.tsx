@@ -1,12 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, Plus, Calendar, Clock, User, Dog, Phone } from "lucide-react";
+import { Trash2, Plus, Calendar, Clock, User, Dog, Phone, Search, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Booking {
@@ -64,6 +63,10 @@ const PanelAdmin = () => {
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterService, setFilterService] = useState("todos");
+  
   const [newBooking, setNewBooking] = useState<Omit<Booking, "id">>({
     ownerName: "",
     petName: "",
@@ -75,6 +78,21 @@ const PanelAdmin = () => {
     time: "",
     notes: ""
   });
+
+  // Filtrar citas basado en búsqueda y filtros
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((booking) => {
+      const matchesSearch = 
+        booking.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        booking.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        booking.phone.includes(searchQuery);
+      
+      const matchesDate = !filterDate || booking.date === filterDate;
+      const matchesService = filterService === "todos" || booking.service === filterService;
+      
+      return matchesSearch && matchesDate && matchesService;
+    });
+  }, [bookings, searchQuery, filterDate, filterService]);
 
   const handleDelete = (id: string) => {
     setBookings(bookings.filter(b => b.id !== id));
@@ -136,17 +154,73 @@ const PanelAdmin = () => {
           <p className="text-muted-foreground">Gestiona todas las citas agendadas de Guapitos</p>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-foreground">
-            Citas Agendadas ({bookings.length})
+        {/* Búsqueda y Filtros */}
+        <Card className="p-6 mb-6 border-primary/20 bg-card/95 backdrop-blur-sm">
+          <div className="space-y-4">
+            {/* Barra de búsqueda */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+              <Input
+                placeholder="Buscar por nombre del dueño, mascota o teléfono..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-base"
+              />
+            </div>
+
+            {/* Filtros */}
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Filtros:</span>
+              </div>
+              
+              <div className="flex-1 min-w-[200px]">
+                <Select value={filterDate} onValueChange={setFilterDate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas las fechas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todas las fechas</SelectItem>
+                    {Array.from(new Set(bookings.map(b => b.date))).map(date => (
+                      <SelectItem key={date} value={date}>{date}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1 min-w-[200px]">
+                <Select value={filterService} onValueChange={setFilterService}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos los servicios" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos los servicios</SelectItem>
+                    <SelectItem value="completo">Servicio Completo</SelectItem>
+                    <SelectItem value="bano-basico">Baño Básico</SelectItem>
+                    <SelectItem value="bano-premium">Baño Sanitario</SelectItem>
+                    <SelectItem value="corte-pelo">Corte de pelo</SelectItem>
+                    <SelectItem value="corte-uña">Corte de uñas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Agregar Cita
+              </Button>
+            </div>
+          </div>
+        </Card>
+
+        {/* Contador de resultados */}
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold text-foreground">
+            Citas encontradas: {filteredBookings.length}
           </h2>
-          <Button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Agregar Cita
-          </Button>
         </div>
 
         {showAddForm && (
@@ -281,67 +355,83 @@ const PanelAdmin = () => {
           </Card>
         )}
 
-        <div className="grid gap-4">
-          {bookings.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground text-lg">No hay citas agendadas</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredBookings.length === 0 ? (
+            <Card className="p-12 text-center col-span-full">
+              <p className="text-muted-foreground text-lg">
+                {searchQuery || filterDate || filterService !== "todos" 
+                  ? "No se encontraron citas con los filtros aplicados" 
+                  : "No hay citas agendadas"}
+              </p>
             </Card>
           ) : (
-            bookings.map((booking) => (
-              <Card key={booking.id} className="p-6 border-primary/20 bg-card/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="space-y-3 flex-1">
-                    <div className="flex items-center gap-2">
-                      <User className="w-5 h-5 text-primary" />
-                      <span className="font-semibold text-lg text-foreground">{booking.ownerName}</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Dog className="w-4 h-4 text-accent" />
-                        <span className="text-muted-foreground">Mascota:</span>
-                        <span className="font-medium text-foreground">{booking.petName}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-accent" />
-                        <span className="text-muted-foreground">Tel:</span>
-                        <span className="font-medium text-foreground">{booking.phone}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-accent" />
-                        <span className="text-muted-foreground">Fecha:</span>
-                        <span className="font-medium text-foreground">{booking.date}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-accent" />
-                        <span className="text-muted-foreground">Hora:</span>
-                        <span className="font-medium text-foreground">{booking.time}</span>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                        {getServiceLabel(booking.service)}
-                      </span>
-                      <span className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium">
-                        {getSizeLabel(booking.petSize)}
-                      </span>
-                    </div>
-                    {booking.notes && (
-                      <div className="mt-2 p-3 bg-muted/50 rounded-md">
-                        <p className="text-sm text-muted-foreground">
-                          <span className="font-medium text-foreground">Notas:</span> {booking.notes}
-                        </p>
-                      </div>
-                    )}
+            filteredBookings.map((booking) => (
+              <Card key={booking.id} className="p-5 border-primary/20 bg-card/95 backdrop-blur-sm hover:shadow-lg transition-all hover:border-primary/40 flex flex-col">
+                {/* Header con nombre y estado */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold text-lg text-foreground">{booking.ownerName}</h3>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDelete(booking.id)}
-                    className="lg:self-start"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <span className="px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full text-xs font-medium flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    Confirmada
+                  </span>
                 </div>
+
+                {/* Información principal */}
+                <div className="space-y-3 mb-4 flex-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Dog className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-foreground">{booking.petName}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Phone className="w-4 h-4" />
+                    <span>{booking.phone}</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Calendar className="w-4 h-4" />
+                      <span>{booking.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Clock className="w-4 h-4" />
+                      <span>{booking.time}</span>
+                    </div>
+                  </div>
+
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
+                      {getServiceLabel(booking.service)}
+                    </span>
+                    <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs font-medium">
+                      {getSizeLabel(booking.petSize)}
+                    </span>
+                  </div>
+
+                  {/* Notas */}
+                  {booking.notes && (
+                    <div className="mt-3 p-2 bg-muted/30 rounded text-xs">
+                      <p className="text-muted-foreground">
+                        <span className="font-medium text-foreground">Notas:</span> {booking.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Botón de eliminar */}
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDelete(booking.id)}
+                  className="w-full mt-auto"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar Cita
+                </Button>
               </Card>
             ))
           )}
