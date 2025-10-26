@@ -5,8 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, Plus, Calendar, Clock, User, Dog, Phone, Search, Filter } from "lucide-react";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Trash2, Plus, Calendar, Clock, User, Dog, Phone, Search, Filter, CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface Booking {
   id: string;
@@ -64,7 +69,7 @@ const PanelAdmin = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterDate, setFilterDate] = useState("todas");
+  const [filterDate, setFilterDate] = useState<Date | undefined>(undefined);
   const [filterService, setFilterService] = useState("todos");
   
   const [newBooking, setNewBooking] = useState<Omit<Booking, "id">>({
@@ -87,7 +92,7 @@ const PanelAdmin = () => {
         booking.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.phone.includes(searchQuery);
       
-      const matchesDate = filterDate === "todas" || booking.date === filterDate;
+      const matchesDate = !filterDate || booking.date === format(filterDate, "yyyy-MM-dd");
       const matchesService = filterService === "todos" || booking.service === filterService;
       
       return matchesSearch && matchesDate && matchesService;
@@ -176,17 +181,40 @@ const PanelAdmin = () => {
               </div>
               
               <div className="flex-1 min-w-[200px]">
-                <Select value={filterDate} onValueChange={setFilterDate}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todas las fechas" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todas">Todas las fechas</SelectItem>
-                    {Array.from(new Set(bookings.map(b => b.date))).map(date => (
-                      <SelectItem key={date} value={date}>{date}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !filterDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filterDate ? format(filterDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={filterDate}
+                      onSelect={setFilterDate}
+                      initialFocus
+                      locale={es}
+                    />
+                    {filterDate && (
+                      <div className="p-3 border-t">
+                        <Button
+                          variant="ghost"
+                          className="w-full"
+                          onClick={() => setFilterDate(undefined)}
+                        >
+                          Limpiar filtro
+                        </Button>
+                      </div>
+                    )}
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="flex-1 min-w-[200px]">
@@ -359,7 +387,7 @@ const PanelAdmin = () => {
           {filteredBookings.length === 0 ? (
             <Card className="p-12 text-center col-span-full">
               <p className="text-muted-foreground text-lg">
-                {searchQuery || filterDate !== "todas" || filterService !== "todos" 
+                {searchQuery || filterDate || filterService !== "todos" 
                   ? "No se encontraron citas con los filtros aplicados" 
                   : "No hay citas agendadas"}
               </p>
@@ -424,13 +452,13 @@ const PanelAdmin = () => {
 
                 {/* Botón de eliminar */}
                 <Button
-                  variant="destructive"
+                  variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(booking.id)}
-                  className="w-full mt-auto"
+                  className="mt-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Eliminar Cita
+                  Eliminar
                 </Button>
               </Card>
             ))
