@@ -14,7 +14,7 @@ const Login = () => {
         e.preventDefault();
 
         if (username === "dueña" && password == "guapitos123") {
-            navigate("/");
+            navigate("/PanelAdmin");
         } else {
             alert("Credenciales incorrectas. Por favor, inténtalo de nuevo.");
         }
