@@ -1,7 +1,7 @@
-import { Card } from "@/components/ui/card";
 import grooming1 from "@/assets/dog-grooming-1.jpg";
 import grooming2 from "@/assets/dog-grooming-2.jpg";
 import grooming3 from "@/assets/dog-grooming-3.jpg";
+import { Card } from "@/components/ui/card";
 
 const Gallery = () => {
   const works = [
@@ -42,7 +42,7 @@ const Gallery = () => {
             <Card key={work.id} className="group overflow-hidden border-0 shadow-card hover:shadow-soft transition-all duration-300 hover:-translate-y-2 bg-card">
               <div className="relative overflow-hidden">
                 <img 
-                  src={work.image} 
+                  src={work.image}
                   alt={work.title}
                   className={"w-full h-96 object-cover group-hover:scale-105 transition-transform duration-300"}
                 />

@@ -1,10 +1,16 @@
-import { Button } from "@/components/ui/button";
 import logo_icon from "@/assets/logo3.png";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const ir_login = () => {
+    navigate("/login");
   };
 
   return (
@@ -38,27 +44,24 @@ const Header = () => {
           >
             Conciencia Animal
           </button>
-          <button 
-            onClick={() => scrollToSection('agendar')}
-            className="text-foreground hover:text-primary transition-colors"
-          >
-            Agendar
-          </button>
-          <Button 
+
+          <Button
             onClick={() => scrollToSection('agendar')}
             className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-opacity"
           >
-            Reservar Cita
-          </Button>
+            Reservar cita
+          </Button> {/*Boton bonito*/}
+
+          {/* al lado derecho de reservar pq reservar debe llamar más la atención que el login */}
+          <button
+            onClick={ir_login}
+            className="text-foreground hover:text-primary transition-colors"
+          >
+            Log In
+          </button>
+
         </nav>
 
-        <Button 
-          className="md:hidden bg-gradient-primary hover:opacity-90"
-          size="sm"
-          onClick={() => scrollToSection('agendar')}
-        >
-          Reservar
-        </Button>
       </div>
     </header>
   );

@@ -1,11 +1,13 @@
-import { useState } from "react";
+// Agendar
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 import { z } from "zod";
 
 const bookingSchema = z.object({
@@ -188,7 +190,7 @@ const BookingForm = () => {
                     <SelectTrigger className="bg-background border-border">
                       <SelectValue placeholder="Selecciona una hora" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent> {/* se debe consultar en la bd para ver los horarios disponibles del día*/}
                       <SelectItem value="09:00">09:00 AM</SelectItem>
                       <SelectItem value="10:00">10:00 AM</SelectItem>
                       <SelectItem value="11:00">11:00 AM</SelectItem>
