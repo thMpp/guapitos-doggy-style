@@ -64,7 +64,7 @@ const PanelAdmin = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterDate, setFilterDate] = useState("");
+  const [filterDate, setFilterDate] = useState("todas");
   const [filterService, setFilterService] = useState("todos");
   
   const [newBooking, setNewBooking] = useState<Omit<Booking, "id">>({
@@ -87,7 +87,7 @@ const PanelAdmin = () => {
         booking.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.phone.includes(searchQuery);
       
-      const matchesDate = !filterDate || booking.date === filterDate;
+      const matchesDate = filterDate === "todas" || booking.date === filterDate;
       const matchesService = filterService === "todos" || booking.service === filterService;
       
       return matchesSearch && matchesDate && matchesService;
@@ -181,7 +181,7 @@ const PanelAdmin = () => {
                     <SelectValue placeholder="Todas las fechas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas las fechas</SelectItem>
+                    <SelectItem value="todas">Todas las fechas</SelectItem>
                     {Array.from(new Set(bookings.map(b => b.date))).map(date => (
                       <SelectItem key={date} value={date}>{date}</SelectItem>
                     ))}
@@ -359,7 +359,7 @@ const PanelAdmin = () => {
           {filteredBookings.length === 0 ? (
             <Card className="p-12 text-center col-span-full">
               <p className="text-muted-foreground text-lg">
-                {searchQuery || filterDate || filterService !== "todos" 
+                {searchQuery || filterDate !== "todas" || filterService !== "todos" 
                   ? "No se encontraron citas con los filtros aplicados" 
                   : "No hay citas agendadas"}
               </p>
