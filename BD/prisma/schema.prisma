@@ -1,0 +1,46 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // puedes cambiarlo a postgresql o mysql si quieres
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  ID_Cliente Int       @id @default(autoincrement())
+  Nombre     String
+  Telefono   String
+  Mascotas   Mascota[]
+}
+
+model Mascota {
+  ID_Mascota Int       @id @default(autoincrement())
+  Nombre     String
+  Tamano     String
+  Cliente    Cliente   @relation(fields: [ID_Cliente], references: [ID_Cliente])
+  ID_Cliente Int
+  Citas      Cita[]
+}
+
+model Servicio {
+  ID_Servicio       Int      @id @default(autoincrement())
+  Nombre_Servicio   String
+  Costo             Float
+  Duracion_Estimada Int
+  Citas             Cita[]
+}
+
+model Cita {
+  ID_Cita           Int       @id @default(autoincrement())
+  Fecha             DateTime
+  Hora              DateTime
+  Notas_Adicionales String?
+  Estado            String
+  Mascota           Mascota   @relation(fields: [ID_Mascota], references: [ID_Mascota])
+  Servicio          Servicio  @relation(fields: [ID_Servicio], references: [ID_Servicio])
+  ID_Mascota        Int
+  ID_Servicio       Int
+  createdAt         DateTime  @default(now())
+}

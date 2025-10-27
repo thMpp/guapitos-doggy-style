@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,12 +13,43 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
+const API_BASE = "http://localhost:3000";
+
+// De "Servicio Completo" → "completo", etc.
+const serviceSlugFromName = (name: string) => {
+  const map: Record<string, string> = {
+    "Servicio Completo": "completo",
+    "Baño Básico": "bano-basico",
+    "Baño Sanitario": "bano-premium",
+    "Corte de pelo": "corte-pelo",
+    "Corte de uñas": "corte-uña",
+  };
+  return map[name] || name;
+};
+
+// Helper: ISO → "YYYY-MM-DD"
+const toYMD = (iso: string) => new Date(iso).toISOString().slice(0, 10);
+
+// Helper: ISO → "HH:mm"
+const toHM = (iso: string) => {
+  const d = new Date(iso);
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${hh}:${mm}`;
+};
+
+const safeId = (val: any) => {
+  if (val != null) return String(val);
+  // Fallback sin crypto:
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+};
+
+
 interface Booking {
   id: string;
   ownerName: string;
   petName: string;
   phone: string;
-  email: string;
   petSize: string;
   service: string;
   date: string;
@@ -34,7 +65,6 @@ const PanelAdmin = () => {
     ownerName: "María González",
     petName: "Max",
     phone: "+56 9 1234 5678",
-    email: "maria@example.com",
     petSize: "mediano",
     service: "completo",
     date: "2025-10-28",
@@ -46,7 +76,6 @@ const PanelAdmin = () => {
     ownerName: "Carlos Rodríguez",
     petName: "Luna",
     phone: "+56 9 8765 4321",
-    email: "carlos@example.com",
     petSize: "pequeno",
     service: "bano-basico",
     date: "2025-10-28",
@@ -58,7 +87,6 @@ const PanelAdmin = () => {
     ownerName: "Ana Silva",
     petName: "Rocky",
     phone: "+56 9 5555 6666",
-    email: "ana@example.com",
     petSize: "grande",
     service: "corte-pelo",
     date: "2025-10-29",
@@ -70,7 +98,6 @@ const PanelAdmin = () => {
     ownerName: "Javier Muñoz",
     petName: "Toby",
     phone: "+56 9 9876 5432",
-    email: "javier@example.com",
     petSize: "pequeno",
     service: "bano-completo",
     date: "2025-10-29",
@@ -82,7 +109,6 @@ const PanelAdmin = () => {
     ownerName: "Camila Reyes",
     petName: "Nina",
     phone: "+56 9 2345 6789",
-    email: "camila@example.com",
     petSize: "mediano",
     service: "completo",
     date: "2025-10-30",
@@ -94,7 +120,6 @@ const PanelAdmin = () => {
     ownerName: "Felipe Arancibia",
     petName: "Bruno",
     phone: "+56 9 1111 2222",
-    email: "felipe@example.com",
     petSize: "grande",
     service: "bano-basico",
     date: "2025-10-30",
@@ -106,7 +131,6 @@ const PanelAdmin = () => {
     ownerName: "Laura Pérez",
     petName: "Coco",
     phone: "+56 9 4444 5555",
-    email: "laura@example.com",
     petSize: "pequeno",
     service: "corte-pelo",
     date: "2025-10-31",
@@ -118,7 +142,6 @@ const PanelAdmin = () => {
     ownerName: "Matías Ortega",
     petName: "Rex",
     phone: "+56 9 7777 8888",
-    email: "matias@example.com",
     petSize: "grande",
     service: "completo",
     date: "2025-11-01",
@@ -130,7 +153,6 @@ const PanelAdmin = () => {
     ownerName: "Paula Herrera",
     petName: "Luna",
     phone: "+56 9 9999 0000",
-    email: "paula@example.com",
     petSize: "mediano",
     service: "bano-completo",
     date: "2025-11-01",
@@ -142,7 +164,6 @@ const PanelAdmin = () => {
     ownerName: "Tomás Valdés",
     petName: "Bobby",
     phone: "+56 9 6666 7777",
-    email: "tomas@example.com",
     petSize: "pequeno",
     service: "bano-basico",
     date: "2025-11-02",
@@ -154,7 +175,6 @@ const PanelAdmin = () => {
     ownerName: "Sofía Contreras",
     petName: "Kiara",
     phone: "+56 9 5555 9999",
-    email: "sofia@example.com",
     petSize: "mediano",
     service: "corte-pelo",
     date: "2025-11-02",
@@ -166,7 +186,6 @@ const PanelAdmin = () => {
     ownerName: "Rodrigo Castro",
     petName: "Simba",
     phone: "+56 9 1020 3040",
-    email: "rodrigo@example.com",
     petSize: "grande",
     service: "completo",
     date: "2025-11-03",
@@ -178,14 +197,55 @@ const PanelAdmin = () => {
     ownerName: "Valentina Espinoza",
     petName: "Maya",
     phone: "+56 9 5050 6060",
-    email: "valentina@example.com",
     petSize: "pequeno",
     service: "bano-completo",
     date: "2025-11-03",
     time: "16:00",
     notes: "Maya tiene ansiedad, pedir cita corta"
   }
-]);
+])
+useEffect(() => {
+  const loadRealBookings = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/citas`);
+      if (!res.ok) throw new Error(await res.text());
+      const citas = (await res.json()) as any[];
+
+      const mapped: Booking[] = citas.map((c) => {
+        const mascota = c?.Mascota ?? {};
+        const cliente = mascota?.Cliente ?? {};
+        const servicio = c?.Servicio ?? {};
+
+        return {
+          id: safeId(c?.ID_Cita),
+          ownerName: String(cliente?.Nombre ?? "(Dueño no registrado)"),
+          petName: String(mascota?.Nombre ?? "Mascota"),
+          phone: String(cliente?.Telefono ?? ""),
+          petSize: String((mascota?.Tamano ?? "")).toLowerCase(), // "pequeno" | "mediano" | "grande"
+          service: serviceSlugFromName(String(servicio?.Nombre_Servicio ?? "")),
+          date: c?.Fecha ? toYMD(c.Fecha) : "",
+          time: c?.Hora ? toHM(c.Hora) : "",
+          notes: String(c?.Notas_Adicionales ?? ""),
+        };
+      });
+
+      setBookings((prev) => {
+        // Evitar duplicados por id
+        const idsPrev = new Set(prev.map((b) => b.id));
+        const soloNuevas = mapped.filter((b) => !idsPrev.has(b.id));
+        return [...soloNuevas, ...prev];
+      });
+    } catch (err: any) {
+      console.error("Error cargando /citas:", err);
+      // Si usas toast:
+      // toast({ title: "Error", description: String(err?.message || err), variant: "destructive" });
+    }
+  };
+
+  loadRealBookings();
+}, []);
+
+
 
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -197,7 +257,6 @@ const PanelAdmin = () => {
     ownerName: "",
     petName: "",
     phone: "",
-    email: "",
     petSize: "",
     service: "",
     date: "",
@@ -236,7 +295,6 @@ const PanelAdmin = () => {
       ownerName: "",
       petName: "",
       phone: "",
-      email: "",
       petSize: "",
       service: "",
       date: "",
@@ -421,16 +479,6 @@ const PanelAdmin = () => {
                     type="tel"
                     value={newBooking.phone}
                     onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newBooking.email}
-                    onChange={(e) => setNewBooking({ ...newBooking, email: e.target.value })}
                     required
                   />
                 </div>

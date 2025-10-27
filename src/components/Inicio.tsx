@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-grooming.jpg";
+import Logo from "@/assets/logo3.png";
 
 const Hero = () => {
   const scrollToSection = (sectionId: string) => {
@@ -56,9 +56,9 @@ const Hero = () => {
           <div className="relative">
             <div className="relative z-10">
               <img 
-                src={heroImage} 
+                src={Logo} 
                 alt="Peluquería canina profesional" 
-                className="rounded-2xl shadow-card w-full h-auto"
+                className="rounded-2xl w-full h-auto"
               />
             </div>
             <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-primary rounded-2xl opacity-20"></div>
