@@ -13,6 +13,11 @@ import { z } from "zod";
 /* ======== CONFIG BACKEND ======== */
 const API_BASE = "http://localhost:3000"; // tu backend Express
 
+
+
+
+
+
 // Mapeo del "slug" del select a cómo se guarda el servicio en BD
 const SERVICE_NAME_BY_SLUG: Record<string, string> = {
   "completo": "Servicio Completo",
@@ -59,9 +64,27 @@ const BookingForm = () => {
     notes: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  setFormData(prev => ({ ...prev, [field]: value }));
+  /* ======== Desplegar horas disponibles ======== */
+  const fetchAvailableTimes = async (selectedDate: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/horas-disponibles?fecha=${selectedDate}`);
+      if (!res.ok) throw new Error(await res.text());
+      const horas = await res.json();
+      setAvailableTimes(horas);
+    } catch (err) {
+      console.error("Error al cargar horas:", err);
+      setAvailableTimes([]); // limpia si falla
+    }
+  };
+
+  if (field === "date") {
+    fetchAvailableTimes(value); // 🔹 carga horas para esa fecha
+    setFormData(prev => ({ ...prev, time: "" })); // limpia hora previa
+  }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -252,18 +275,22 @@ const BookingForm = () => {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-foreground font-medium">Hora Preferida *</Label>
-                  <Select value={formData.time} onValueChange={(value) => handleInputChange('time', value)}>
+                  <Select value={formData.time} onValueChange={(value) => handleInputChange("time", value)} disabled={availableTimes.length === 0}>
                     <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Selecciona una hora" />
+                      <SelectValue placeholder={availableTimes.length ? "Selecciona una hora" : "Selecciona primero la fecha"} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="09:00">09:00 AM</SelectItem>
-                      <SelectItem value="10:00">10:00 AM</SelectItem>
-                      <SelectItem value="11:00">11:00 AM</SelectItem>
-                      <SelectItem value="12:00">12:00 PM</SelectItem>
-                      <SelectItem value="14:00">02:00 PM</SelectItem>
-                      <SelectItem value="15:00">03:00 PM</SelectItem>
-                      <SelectItem value="16:00">04:00 PM</SelectItem>
+                      {availableTimes.length > 0 ? (
+                        availableTimes.map((hora) => (
+                          <SelectItem key={hora} value={hora}>
+                            {hora} {parseInt(hora.split(":")[0]) < 12 ? "AM" : "PM"}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="-" disabled>
+                          Sin horas disponibles
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

@@ -44,219 +44,268 @@ const safeId = (val: any) => {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
+
 interface Booking {
-  id: string; // stringified ID_Cita when it exists
+  id: string;
   ownerName: string;
   petName: string;
   phone: string;
   petSize: string;
-  service: string; // slug like "completo"
-  date: string; // yyyy-mm-dd
-  time: string; // HH:mm
+  service: string;
+  date: string;
+  time: string;
   notes: string;
 }
 
-// Mapea el objeto devuelto por Prisma a Booking
-const mapPrismaToBooking = (c: any): Booking => {
-  const mascota = c?.Mascota ?? {};
-  const cliente = mascota?.Cliente ?? {};
-  const servicio = c?.Servicio ?? {};
-
-  return {
-    id: safeId(c?.ID_Cita),
-    ownerName: String(cliente?.Nombre ?? "(Dueño no registrado)"),
-    petName: String(mascota?.Nombre ?? "Mascota"),
-    phone: String(cliente?.Telefono ?? ""),
-    petSize: String((mascota?.Tamano ?? "")).toLowerCase(),
-    service: serviceSlugFromName(String(servicio?.Nombre_Servicio ?? "")),
-    date: c?.Fecha ? toYMD(c.Fecha) : "",
-    time: c?.Hora ? toHM(c.Hora) : "",
-    notes: String(c?.Notas_Adicionales ?? ""),
-  };
-};
-
-const initialFormData: Omit<Booking, "id"> = {
-  ownerName: "",
-  petName: "",
-  phone: "",
-  petSize: "",
-  service: "",
-  date: "",
-  time: "",
-  notes: ""
-};
-
 const PanelAdmin = () => {
   const { toast } = useToast();
+  const [bookings, setBookings] = useState<Booking[]>([
+  {
+    id: "21",
+    ownerName: "María González",
+    petName: "Max",
+    phone: "+56 9 1234 5678",
+    petSize: "mediano",
+    service: "completo",
+    date: "2025-10-28",
+    time: "09:00",
+    notes: "Max es un poco nervioso con las tijeras"
+  },
+  {
+    id: "22",
+    ownerName: "Carlos Rodríguez",
+    petName: "Luna",
+    phone: "+56 9 8765 4321",
+    petSize: "pequeno",
+    service: "bano-basico",
+    date: "2025-10-28",
+    time: "10:00",
+    notes: "Primera vez en peluquería"
+  },
+  {
+    id: "23",
+    ownerName: "Ana Silva",
+    petName: "Rocky",
+    phone: "+56 9 5555 6666",
+    petSize: "grande",
+    service: "corte-pelo",
+    date: "2025-10-29",
+    time: "11:00",
+    notes: "Le gusta el corte estilo teddy bear"
+  },
+  {
+    id: "4",
+    ownerName: "Javier Muñoz",
+    petName: "Toby",
+    phone: "+56 9 9876 5432",
+    petSize: "pequeno",
+    service: "bano-completo",
+    date: "2025-10-29",
+    time: "12:00",
+    notes: "Tiene alergia al shampoo con fragancia"
+  },
+  {
+    id: "5",
+    ownerName: "Camila Reyes",
+    petName: "Nina",
+    phone: "+56 9 2345 6789",
+    petSize: "mediano",
+    service: "completo",
+    date: "2025-10-30",
+    time: "09:30",
+    notes: "Nina es muy sociable, le gusta que la cepillen"
+  },
+  {
+    id: "6",
+    ownerName: "Felipe Arancibia",
+    petName: "Bruno",
+    phone: "+56 9 1111 2222",
+    petSize: "grande",
+    service: "bano-basico",
+    date: "2025-10-30",
+    time: "11:30",
+    notes: "Traerá su propio collar antitirones"
+  },
+  {
+    id: "7",
+    ownerName: "Laura Pérez",
+    petName: "Coco",
+    phone: "+56 9 4444 5555",
+    petSize: "pequeno",
+    service: "corte-pelo",
+    date: "2025-10-31",
+    time: "10:00",
+    notes: "Prefiere que usen tijeras, no máquina"
+  },
+  {
+    id: "8",
+    ownerName: "Matías Ortega",
+    petName: "Rex",
+    phone: "+56 9 7777 8888",
+    petSize: "grande",
+    service: "completo",
+    date: "2025-11-01",
+    time: "13:00",
+    notes: "Rex se asusta con el secador, hacerlo manual"
+  },
+  {
+    id: "9",
+    ownerName: "Paula Herrera",
+    petName: "Luna",
+    phone: "+56 9 9999 0000",
+    petSize: "mediano",
+    service: "bano-completo",
+    date: "2025-11-01",
+    time: "14:00",
+    notes: "Tiene piel sensible, usar shampoo hipoalergénico"
+  },
+  {
+    id: "10",
+    ownerName: "Tomás Valdés",
+    petName: "Bobby",
+    phone: "+56 9 6666 7777",
+    petSize: "pequeno",
+    service: "bano-basico",
+    date: "2025-11-02",
+    time: "09:30",
+    notes: "Es cachorro, primera peluquería"
+  },
+  {
+    id: "11",
+    ownerName: "Sofía Contreras",
+    petName: "Kiara",
+    phone: "+56 9 5555 9999",
+    petSize: "mediano",
+    service: "corte-pelo",
+    date: "2025-11-02",
+    time: "11:00",
+    notes: "Quiere corte tipo pomerania"
+  },
+  {
+    id: "12",
+    ownerName: "Rodrigo Castro",
+    petName: "Simba",
+    phone: "+56 9 1020 3040",
+    petSize: "grande",
+    service: "completo",
+    date: "2025-11-03",
+    time: "15:00",
+    notes: "Perro muy tranquilo, se deja manipular"
+  },
+  {
+    id: "13",
+    ownerName: "Valentina Espinoza",
+    petName: "Maya",
+    phone: "+56 9 5050 6060",
+    petSize: "pequeno",
+    service: "bano-completo",
+    date: "2025-11-03",
+    time: "16:00",
+    notes: "Maya tiene ansiedad, pedir cita corta"
+  }
+])
+useEffect(() => {
+  const loadRealBookings = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/citas`);
+      if (!res.ok) throw new Error(await res.text());
+      const citas = (await res.json()) as any[];
 
-  // ahora partimos vacío y cargamos desde backend
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+      const mapped: Booking[] = citas.map((c) => {
+        const mascota = c?.Mascota ?? {};
+        const cliente = mascota?.Cliente ?? {};
+        const servicio = c?.Servicio ?? {};
 
-  // Form unificado (crear / editar)
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [formData, setFormData] = useState<Omit<Booking, "id">>(initialFormData);
-  const [editingBooking, setEditingBooking] = useState<Booking | null>(null); // null = creando
+        return {
+          id: safeId(c?.ID_Cita),
+          ownerName: String(cliente?.Nombre ?? "(Dueño no registrado)"),
+          petName: String(mascota?.Nombre ?? "Mascota"),
+          phone: String(cliente?.Telefono ?? ""),
+          petSize: String((mascota?.Tamano ?? "")).toLowerCase(), // "pequeno" | "mediano" | "grande"
+          service: serviceSlugFromName(String(servicio?.Nombre_Servicio ?? "")),
+          date: c?.Fecha ? toYMD(c.Fecha) : "",
+          time: c?.Hora ? toHM(c.Hora) : "",
+          notes: String(c?.Notas_Adicionales ?? ""),
+        };
+      });
 
-  // Filtros y UI
+      setBookings((prev) => {
+        // Evitar duplicados por id
+        const idsPrev = new Set(prev.map((b) => b.id));
+        const soloNuevas = mapped.filter((b) => !idsPrev.has(b.id));
+        return [...soloNuevas, ...prev];
+      });
+    } catch (err: any) {
+      console.error("Error cargando /citas:", err);
+      // Si usas toast:
+      // toast({ title: "Error", description: String(err?.message || err), variant: "destructive" });
+    }
+  };
+
+  loadRealBookings();
+}, []);
+
+
+
+
+  const [showAddForm, setShowAddForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDate, setFilterDate] = useState<Date | undefined>(undefined);
   const [filterService, setFilterService] = useState("todos");
+  
+  const [newBooking, setNewBooking] = useState<Omit<Booking, "id">>({
+    ownerName: "",
+    petName: "",
+    phone: "",
+    petSize: "",
+    service: "",
+    date: "",
+    time: "",
+    notes: ""
+  });
 
-  // Cargar citas desde backend (reemplaza datos previos)
-  useEffect(() => {
-    const loadRealBookings = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(`${API_BASE}/citas`);
-        if (!res.ok) throw new Error(await res.text());
-        const citas = (await res.json()) as any[];
-
-        const mapped: Booking[] = citas.map(mapPrismaToBooking);
-        setBookings(mapped); // REEMPLAZAMOS datos
-      } catch (err: any) {
-        console.error("Error cargando /citas:", err);
-        toast({
-          title: "Error al cargar citas",
-          description: String(err?.message || err),
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadRealBookings();
-  }, [toast]);
-
-  // Filtrado (igual que antes)
+  // Filtrar citas basado en búsqueda y filtros
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
-      const matchesSearch =
+      const matchesSearch = 
         booking.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         booking.phone.includes(searchQuery);
-
+      
       const matchesDate = !filterDate || booking.date === format(filterDate, "yyyy-MM-dd");
       const matchesService = filterService === "todos" || booking.service === filterService;
-
+      
       return matchesSearch && matchesDate && matchesService;
     });
   }, [bookings, searchQuery, filterDate, filterService]);
 
-  // Abrir formulario para crear o editar
-  const handleOpenForm = (booking: Booking | null = null) => {
-    if (booking) {
-      setEditingBooking(booking);
-      setFormData({
-        ownerName: booking.ownerName,
-        petName: booking.petName,
-        phone: booking.phone,
-        petSize: booking.petSize,
-        service: booking.service,
-        date: booking.date,
-        time: booking.time,
-        notes: booking.notes,
-      });
-    } else {
-      setEditingBooking(null);
-      setFormData(initialFormData);
-    }
-    setIsFormOpen(true);
+  const handleDelete = (id: string) => {
+    setBookings(bookings.filter(b => b.id !== id));
+    toast({
+      title: "Cita eliminada",
+      description: "La cita ha sido eliminada exitosamente",
+    });
   };
 
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-    setEditingBooking(null);
-    setFormData(initialFormData);
-  };
-
-  // Crear cita (POST -> backend)
-  const handleAddBooking = async (e: React.FormEvent) => {
+  const handleAddBooking = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const res = await fetch(`${API_BASE}/citas`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // payload "amigable" que acepta el backend
-          ownerName: formData.ownerName,
-          petName: formData.petName,
-          phone: formData.phone,
-          petSize: formData.petSize,
-          service: formData.service,
-          date: formData.date,
-          time: formData.time,
-          notes: formData.notes,
-        }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-      const created = await res.json();
-      const mapped = mapPrismaToBooking(created);
-
-      // Añadimos al inicio
-      setBookings((prev) => [mapped, ...prev]);
-      handleCloseForm();
-      toast({ title: "Cita agregada", description: "La nueva cita ha sido agregada exitosamente" });
-    } catch (err: any) {
-      console.error("Error agregando cita:", err);
-      toast({ title: "Error al agregar", description: String(err?.message || err), variant: "destructive" });
-    }
-  };
-
-  // Actualizar cita (PUT -> backend)
-  const handleUpdateBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingBooking) return;
-
-    try {
-      const id = editingBooking.id;
-      const res = await fetch(`${API_BASE}/citas/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          // enviamos date/time y service (slug)
-          date: formData.date,
-          time: formData.time,
-          notes: formData.notes,
-          service: formData.service,
-          // no intentamos modificar dueño/mascota/telefono en esta ruta
-        }),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-      const updated = await res.json();
-      const mapped = mapPrismaToBooking(updated);
-
-      setBookings((prev) => prev.map((b) => (b.id === mapped.id ? mapped : b)));
-      handleCloseForm();
-      toast({ title: "Cita actualizada", description: "La cita ha sido modificada exitosamente" });
-    } catch (err: any) {
-      console.error("Error actualizando cita:", err);
-      toast({ title: "Error al actualizar", description: String(err?.message || err), variant: "destructive" });
-    }
-  };
-
-  // Eliminar cita (DELETE -> backend) con optimistic UI
-  const handleDelete = async (id: string) => {
-    const original = [...bookings];
-    setBookings((prev) => prev.filter((b) => b.id !== id));
-
-    try {
-      const res = await fetch(`${API_BASE}/citas/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(await res.text());
-      toast({ title: "Cita eliminada", description: "La cita ha sido eliminada exitosamente" });
-    } catch (err: any) {
-      console.error("Error eliminando cita:", err);
-      setBookings(original);
-      toast({ title: "Error al eliminar", description: String(err?.message || err), variant: "destructive" });
-    }
-  };
-
-  // Handlers genéricos del formulario
-  const handleFormChange = (field: keyof Omit<Booking, "id">, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const newId = (Math.max(...bookings.map(b => parseInt(b.id)), 0) + 1).toString();
+    setBookings([...bookings, { ...newBooking, id: newId }]);
+    setNewBooking({
+      ownerName: "",
+      petName: "",
+      phone: "",
+      petSize: "",
+      service: "",
+      date: "",
+      time: "",
+      notes: ""
+    });
+    setShowAddForm(false);
+    toast({
+      title: "Cita agregada",
+      description: "La nueva cita ha sido agregada exitosamente",
+    });
   };
 
   const getServiceLabel = (service: string) => {
@@ -294,6 +343,7 @@ const PanelAdmin = () => {
             </p>
           </div>
 
+          {/* Botón Volver al inicio */}
           <Button
             type="button"
             onClick={() => (window.location.href = "/")}
@@ -303,9 +353,11 @@ const PanelAdmin = () => {
           </Button>
         </div>
 
-        {/* Búsqueda y filtros */}
+
+        {/* Búsqueda y Filtros */}
         <Card className="p-6 mb-6 border-primary/20 bg-card/95 backdrop-blur-sm">
           <div className="space-y-4">
+            {/* Barra de búsqueda */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
               <Input
@@ -316,12 +368,13 @@ const PanelAdmin = () => {
               />
             </div>
 
+            {/* Filtros */}
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-foreground">Filtros:</span>
               </div>
-
+              
               <div className="flex-1 min-w-[200px]">
                 <Popover>
                   <PopoverTrigger asChild>
@@ -346,7 +399,11 @@ const PanelAdmin = () => {
                     />
                     {filterDate && (
                       <div className="p-3 border-t">
-                        <Button variant="ghost" className="w-full" onClick={() => setFilterDate(undefined)}>
+                        <Button
+                          variant="ghost"
+                          className="w-full"
+                          onClick={() => setFilterDate(undefined)}
+                        >
                           Limpiar filtro
                         </Button>
                       </div>
@@ -371,7 +428,10 @@ const PanelAdmin = () => {
                 </Select>
               </div>
 
-              <Button onClick={() => handleOpenForm(null)} className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90">
+              <Button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Agregar Cita
               </Button>
@@ -379,34 +439,55 @@ const PanelAdmin = () => {
           </div>
         </Card>
 
+        {/* Contador de resultados */}
         <div className="mb-4">
-          <h2 className="text-xl font-semibold text-foreground">Citas encontradas: {filteredBookings.length}</h2>
+          <h2 className="text-xl font-semibold text-foreground">
+            Citas encontradas: {filteredBookings.length}
+          </h2>
         </div>
 
-        {/* Formulario de Agregar / Modificar Cita */}
-        {isFormOpen && (
+        {showAddForm && (
           <Card className="p-6 mb-6 border-primary/20 bg-card/95 backdrop-blur-sm">
-            <h3 className="text-xl font-semibold mb-4 text-foreground">{editingBooking ? "Modificar Cita" : "Nueva Cita"}</h3>
-            <form onSubmit={editingBooking ? handleUpdateBooking : handleAddBooking} className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Nueva Cita</h3>
+            <form onSubmit={handleAddBooking} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="ownerName">Nombre del Dueño *</Label>
-                  <Input id="ownerName" value={formData.ownerName} onChange={(e) => handleFormChange("ownerName", e.target.value)} required disabled={!!editingBooking} />
+                  <Input
+                    id="ownerName"
+                    value={newBooking.ownerName}
+                    onChange={(e) => setNewBooking({ ...newBooking, ownerName: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="petName">Nombre de la Mascota *</Label>
-                  <Input id="petName" value={formData.petName} onChange={(e) => handleFormChange("petName", e.target.value)} required disabled={!!editingBooking} />
+                  <Input
+                    id="petName"
+                    value={newBooking.petName}
+                    onChange={(e) => setNewBooking({ ...newBooking, petName: e.target.value })}
+                    required
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Teléfono *</Label>
-                  <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleFormChange("phone", e.target.value)} required disabled={!!editingBooking} />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={newBooking.phone}
+                    onChange={(e) => setNewBooking({ ...newBooking, phone: e.target.value })}
+                    required
+                  />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Tamaño *</Label>
-                  <Select value={formData.petSize} onValueChange={(value) => handleFormChange("petSize", value)} disabled={!!editingBooking}>
+                  <Select value={newBooking.petSize} onValueChange={(value) => setNewBooking({ ...newBooking, petSize: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona el tamaño" />
                     </SelectTrigger>
@@ -417,32 +498,38 @@ const PanelAdmin = () => {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Servicio *</Label>
-                <Select value={formData.service} onValueChange={(value) => handleFormChange("service", value)} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecciona un servicio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="completo">Servicio Completo</SelectItem>
-                    <SelectItem value="bano-basico">Baño Básico</SelectItem>
-                    <SelectItem value="bano-premium">Baño Sanitario</SelectItem>
-                    <SelectItem value="corte-pelo">Corte de pelo</SelectItem>
-                    <SelectItem value="corte-uña">Corte de uñas</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label>Servicio *</Label>
+                  <Select value={newBooking.service} onValueChange={(value) => setNewBooking({ ...newBooking, service: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un servicio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="completo">Servicio Completo</SelectItem>
+                      <SelectItem value="bano-basico">Baño Básico</SelectItem>
+                      <SelectItem value="bano-premium">Baño Sanitario</SelectItem>
+                      <SelectItem value="corte-pelo">Corte de pelo</SelectItem>
+                      <SelectItem value="corte-uña">Corte de uñas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="date">Fecha *</Label>
-                  <Input id="date" type="date" value={formData.date} onChange={(e) => handleFormChange("date", e.target.value)} min={new Date().toISOString().split("T")[0]} required />
+                  <Input
+                    id="date"
+                    type="date"
+                    value={newBooking.date}
+                    onChange={(e) => setNewBooking({ ...newBooking, date: e.target.value })}
+                    min={new Date().toISOString().split('T')[0]}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Hora *</Label>
-                  <Select value={formData.time} onValueChange={(value) => handleFormChange("time", value)} required>
+                  <Select value={newBooking.time} onValueChange={(value) => setNewBooking({ ...newBooking, time: value })}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecciona una hora" />
                     </SelectTrigger>
@@ -461,14 +548,19 @@ const PanelAdmin = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="notes">Notas Adicionales</Label>
-                <Textarea id="notes" value={formData.notes} onChange={(e) => handleFormChange("notes", e.target.value)} rows={3} />
+                <Textarea
+                  id="notes"
+                  value={newBooking.notes}
+                  onChange={(e) => setNewBooking({ ...newBooking, notes: e.target.value })}
+                  rows={3}
+                />
               </div>
 
               <div className="flex gap-2">
                 <Button type="submit" className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc]">
-                  {editingBooking ? "Guardar Cambios" : "Agregar Cita"}
+                  Agregar Cita
                 </Button>
-                <Button type="button" variant="outline" onClick={handleCloseForm}>
+                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
                   Cancelar
                 </Button>
               </div>
@@ -477,21 +569,18 @@ const PanelAdmin = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {isLoading ? (
-            <Card className="p-12 text-center col-span-full">
-              <p className="text-muted-foreground text-lg">Cargando citas...</p>
-            </Card>
-          ) : filteredBookings.length === 0 ? (
+          {filteredBookings.length === 0 ? (
             <Card className="p-12 text-center col-span-full">
               <p className="text-muted-foreground text-lg">
-                {searchQuery || filterDate || filterService !== "todos"
-                  ? "No se encontraron citas con los filtros aplicados"
+                {searchQuery || filterDate || filterService !== "todos" 
+                  ? "No se encontraron citas con los filtros aplicados" 
                   : "No hay citas agendadas"}
               </p>
             </Card>
           ) : (
             filteredBookings.map((booking) => (
               <Card key={booking.id} className="p-5 border-primary/20 bg-card/95 backdrop-blur-sm hover:shadow-lg transition-all hover:border-primary/40 flex flex-col">
+                {/* Header con nombre y estado */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <User className="w-5 h-5 text-primary" />
@@ -503,12 +592,13 @@ const PanelAdmin = () => {
                   </span>
                 </div>
 
+                {/* Información principal */}
                 <div className="space-y-3 mb-4 flex-1">
                   <div className="flex items-center gap-2 text-sm">
                     <Dog className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium text-foreground">{booking.petName}</span>
                   </div>
-
+                  
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Phone className="w-4 h-4" />
                     <span>{booking.phone}</span>
@@ -525,15 +615,30 @@ const PanelAdmin = () => {
                     </div>
                   </div>
 
+                  {/* Badges */}
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: "#EC82AE1A", color: "#EC82AE" }}>
+                    <span
+                      className="px-2 py-1 rounded text-xs font-medium"
+                      style={{
+                        backgroundColor: "#EC82AE1A", // color de fondo con opacidad (usar RGBA o HEX con transparencia)
+                        color: "#EC82AE"              // color del texto
+                      }}
+                    >
                       {getServiceLabel(booking.service)}
                     </span>
-                    <span className="px-2 py-1 rounded text-xs font-medium" style={{ backgroundColor: "#74DBD41A", color: "#74DBD4" }}>
+
+                    <span
+                      className="px-2 py-1 rounded text-xs font-medium"
+                      style={{
+                        backgroundColor: "#74DBD41A", // color de fondo con opacidad
+                        color: "#74DBD4"              // color del texto
+                      }}
+                    >
                       {getSizeLabel(booking.petSize)}
                     </span>
                   </div>
 
+                  {/* Notas */}
                   {booking.notes && (
                     <div className="mt-3 p-2 bg-muted/30 rounded text-xs">
                       <p className="text-muted-foreground">
@@ -543,16 +648,25 @@ const PanelAdmin = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2 mt-auto">
-                  <Button variant="ghost" size="sm" onClick={() => handleOpenForm(booking)} className="flex-1 text-muted-foreground hover:text-[#3B82F6] hover:bg-[#3B82F6]/10">
-                    <Pencil className="w-4 h-4 mr-2" />
-                    Modificar
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(booking.id)} className="flex-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar
-                  </Button>
-                </div>
+                {/* Botón de eliminar */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(booking.id)}
+                  className="mt-auto text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar
+                </Button>
+                {/* Botón de Modificar */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-auto text-muted-foreground hover:text-[#3B82F6] hover:bg-[#3B82F6]/10"
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Modificar
+                </Button>
               </Card>
             ))
           )}
