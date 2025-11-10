@@ -11,9 +11,10 @@ import { useState } from "react";
 import { z } from "zod";
 
 /* ======== CONFIG BACKEND ======== */
-const API_BASE = "http://localhost:3000"; // tu backend Express
 
-
+// en un util común
+export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+export const apiUrl = (path: string) => new URL(path, API_BASE).toString();
 
 
 

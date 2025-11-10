@@ -13,7 +13,8 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-const API_BASE = "http://localhost:3000";
+export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
+export const apiUrl = (path: string) => new URL(path, API_BASE).toString();
 
 // De "Servicio Completo" → "completo", etc.
 const serviceSlugFromName = (name: string) => {
