@@ -13,6 +13,11 @@ app.use(cors({
 }));
 app.get("/health", (_req, res) => res.json({ok:true}));
 
+app.use((req, _res, next) => {
+  req.url = req.url.replace(/\/{2,}/g, "/"); // // -> /
+  next();
+});
+
 
 // Logger simple
 app.use((req, _res, next) => {
