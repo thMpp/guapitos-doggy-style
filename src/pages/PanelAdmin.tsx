@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const apiUrl = (path: string) => new URL(path, API_BASE).toString();
-const res = await fetch(apiUrl("/citas"));
 
 
 const serviceSlugFromName = (name: string) => {
