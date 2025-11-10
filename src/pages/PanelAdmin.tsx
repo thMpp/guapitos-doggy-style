@@ -15,8 +15,9 @@ import { cn } from "@/lib/utils";
 
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const apiUrl = (path: string) => new URL(path, API_BASE).toString();
+const res = await fetch(apiUrl("/citas"));
 
-// De "Servicio Completo" → "completo", etc.
+
 const serviceSlugFromName = (name: string) => {
   const map: Record<string, string> = {
     "Servicio Completo": "completo",
@@ -109,7 +110,7 @@ const PanelAdmin = () => {
     const loadRealBookings = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/citas`);
+        const res = await fetch(apiUrl("/citas"));
         if (!res.ok) throw new Error(await res.text());
         const citas = (await res.json()) as any[];
 
@@ -176,7 +177,7 @@ const PanelAdmin = () => {
   const handleAddBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${API_BASE}/citas`, {
+      const res = await fetch(apiUrl("/citas"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,7 +214,7 @@ const PanelAdmin = () => {
 
     try {
       const id = editingBooking.id;
-      const res = await fetch(`${API_BASE}/citas/${id}`, {
+      const res = await fetch(apiUrl("/citas/${id}"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -245,7 +246,7 @@ const PanelAdmin = () => {
     setBookings((prev) => prev.filter((b) => b.id !== id));
 
     try {
-      const res = await fetch(`${API_BASE}/citas/${id}`, { method: "DELETE" });
+      const res = await fetch(apiUrl("/citas/${id}"), { method: "DELETE" });
       if (!res.ok) throw new Error(await res.text());
       toast({ title: "Cita eliminada", description: "La cita ha sido eliminada exitosamente" });
     } catch (err: any) {

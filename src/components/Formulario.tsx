@@ -70,25 +70,26 @@ const BookingForm = () => {
   const handleInputChange = (field: string, value: string) => {
   setFormData(prev => ({ ...prev, [field]: value }));
   /* ======== Desplegar horas disponibles ======== */
-  const fetchAvailableTimes = async (selectedDate: string) => {
-    try {
-      const res = await fetch(`${API_BASE}/horas-disponibles?fecha=${selectedDate}`);
-      if (!res.ok) throw new Error(await res.text());
-      const horas = await res.json();
-      setAvailableTimes(horas);
-    } catch (err) {
-      console.error("Error al cargar horas:", err);
-      setAvailableTimes([]); // limpia si falla
-    }
-  };
+const fetchAvailableTimes = async (selectedDate: string) => {
+  try {
+    const res = await fetch(apiUrl(`/horas-disponibles?fecha=${selectedDate}`));
+    if (!res.ok) throw new Error(await res.text());
+    const horas = await res.json();
+    setAvailableTimes(horas);
+  } catch (err) {
+    console.error("Error al cargar horas:", err);
+    setAvailableTimes([]);
+  }
+};
 
   if (field === "date") {
-    fetchAvailableTimes(value); // 🔹 carga horas para esa fecha
-    setFormData(prev => ({ ...prev, time: "" })); // limpia hora previa
+    fetchAvailableTimes(value);
+    setFormData(prev => ({ ...prev, time: "" }));
   }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     setIsSubmitting(true);
 
