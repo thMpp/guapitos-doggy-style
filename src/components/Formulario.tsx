@@ -72,7 +72,7 @@ const BookingForm = () => {
   /* ======== Desplegar horas disponibles ======== */
 const fetchAvailableTimes = async (selectedDate: string) => {
   try {
-    const res = await fetch(apiUrl(`/horas-disponibles?fecha=${selectedDate}`));
+    const res = await fetch(apiUrl(`horas-disponibles?fecha=${selectedDate}`));
     if (!res.ok) throw new Error(await res.text());
     const horas = await res.json();
     setAvailableTimes(horas);

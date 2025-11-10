@@ -109,7 +109,7 @@ const PanelAdmin = () => {
     const loadRealBookings = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(apiUrl("/citas"));
+        const res = await fetch(apiUrl("citas"));
         if (!res.ok) throw new Error(await res.text());
         const citas = (await res.json()) as any[];
 
@@ -176,7 +176,7 @@ const PanelAdmin = () => {
   const handleAddBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(apiUrl("/citas"), {
+      const res = await fetch(apiUrl("citas"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -213,7 +213,7 @@ const PanelAdmin = () => {
 
     try {
       const id = editingBooking.id;
-      const res = await fetch(apiUrl("/citas/${id}"), {
+      const res = await fetch(apiUrl("citas/${id}"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -245,7 +245,7 @@ const PanelAdmin = () => {
     setBookings((prev) => prev.filter((b) => b.id !== id));
 
     try {
-      const res = await fetch(apiUrl("/citas/${id}"), { method: "DELETE" });
+      const res = await fetch(apiUrl("citas/${id}"), { method: "DELETE" });
       if (!res.ok) throw new Error(await res.text());
       toast({ title: "Cita eliminada", description: "La cita ha sido eliminada exitosamente" });
     } catch (err: any) {
