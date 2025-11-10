@@ -31,13 +31,14 @@ const serviceSlugFromName = (name: string) => {
 // Helper: ISO → "YYYY-MM-DD"
 const toYMD = (iso: string) => new Date(iso).toISOString().slice(0, 10);
 
-// Helper: ISO → "HH:mm"
+// Helper: ISO -> "HH:mm" en UTC
 const toHM = (iso: string) => {
   const d = new Date(iso);
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
   return `${hh}:${mm}`;
 };
+
 
 const safeId = (val: any) => {
   if (val != null) return String(val);
