@@ -1,139 +1,89 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import logo_icon from "@/assets/logo3.png";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 
-const Header = () => {
-  const navigate = useNavigate();
+export default function Header() {
   const [open, setOpen] = useState(false);
 
-  const scrollToSection = (sectionId: string) => {
-    const el = document.getElementById(sectionId);
-    el?.scrollIntoView({ behavior: "smooth" });
-    setOpen(false);
-  };
-
-  const ir_login = () => {
-    navigate("/login");
-    setOpen(false);
-  };
-
-  // Evita scroll de fondo cuando el menú móvil está abierto
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
-
   return (
-    <header className="fixed top-0 w-full bg-background/80 backdrop-blur-md border-b border-border z-50">
-      <div className="container mx-auto px-4 h-14 sm:h-16 flex items-center justify-between">
+    <header
+      className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+      style={{ paddingTop: "env(safe-area-inset-top)" }} // respeta notch en iOS/Android
+    >
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">
         {/* Logo + marca */}
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-3 shrink-0">
           <img
-            src={logo_icon}
-            alt="Logo Guapitos"
-            className="w-10 h-10 rounded-full object-cover"
+            src="/logo.png"                // ajusta si usas otro path
+            alt="Guapitos"
+            className="h-10 w-10 rounded-full object-contain sm:h-12 sm:w-12"
+            loading="eager"
           />
-          <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-[#ec82ae] via-[#b48fd3] to-[#7ce0f1] bg-clip-text text-transparent">
+          <span className="text-xl font-extrabold tracking-tight sm:text-2xl bg-gradient-to-r from-[#ec82ae] via-[#b9a8d9] to-[#92e6f6] bg-clip-text text-transparent">
             GUAPITOS
           </span>
-        </div>
+        </Link>
 
         {/* Navegación desktop */}
-        <nav className="hidden md:flex items-center gap-6">
-          <button
-            onClick={() => scrollToSection("inicio")}
-            className="text-foreground hover:text-primary transition-colors"
-          >
-            Inicio
-          </button>
-          <button
-            onClick={() => scrollToSection("galeria")}
-            className="text-foreground hover:text-primary transition-colors"
-          >
-            Galería
-          </button>
-          <button
-            onClick={() => scrollToSection("conciencia")}
-            className="text-foreground hover:text-primary transition-colors"
-          >
-            Conciencia Animal
-          </button>
-
-          <Button
-            onClick={() => scrollToSection("agendar")}
-            className="bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-opacity"
+        <nav className="hidden items-center gap-6 sm:flex">
+          <Link to="/" className="text-sm text-slate-600 hover:text-slate-900">Inicio</Link>
+          <Link to="/galeria" className="text-sm text-slate-600 hover:text-slate-900">Galería</Link>
+          <Link to="/conciencia" className="text-sm text-slate-600 hover:text-slate-900">Conciencia Animal</Link>
+          <Link
+            to="/Formulario"
+            className="rounded-xl bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90"
           >
             Reservar cita
-          </Button>
-
-          <button
-            onClick={ir_login}
-            className="text-foreground hover:text-primary transition-colors"
-          >
-            Iniciar Sesión
-          </button>
+          </Link>
         </nav>
 
-        {/* Botón hamburger (móvil) */}
+        {/* Botón hamburguesa móvil */}
         <button
-          className="md:hidden inline-flex items-center justify-center rounded-md p-2 text-foreground hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary"
+          type="button"
           aria-label="Abrir menú"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => setOpen(true)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/80 text-slate-700 shadow active:scale-95 sm:hidden"
         >
-          {/* ícono simple */}
-          <span className="block h-0.5 w-6 bg-foreground mb-1.5"></span>
-          <span className="block h-0.5 w-6 bg-foreground mb-1.5"></span>
-          <span className="block h-0.5 w-6 bg-foreground"></span>
+          <Menu className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Menú móvil desplegable */}
-      <div
-        className={`md:hidden transition-[max-height] duration-300 overflow-hidden border-t border-border ${
-          open ? "max-h-96" : "max-h-0"
-        }`}
-      >
-        <div className="container mx-auto px-4 py-3 flex flex-col gap-2">
-          <button
-            onClick={() => scrollToSection("inicio")}
-            className="text-foreground py-2 text-base text-left hover:text-primary"
-          >
-            Inicio
-          </button>
-          <button
-            onClick={() => scrollToSection("galeria")}
-            className="text-foreground py-2 text-base text-left hover:text-primary"
-          >
-            Galería
-          </button>
-          <button
-            onClick={() => scrollToSection("conciencia")}
-            className="text-foreground py-2 text-base text-left hover:text-primary"
-          >
-            Conciencia Animal
-          </button>
-
-          <Button
-            onClick={() => scrollToSection("agendar")}
-            className="mt-2 bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 transition-opacity"
-          >
-            Reservar cita
-          </Button>
-
-          <button
-            onClick={ir_login}
-            className="text-foreground py-2 text-base text-left hover:text-primary"
-          >
-            Iniciar Sesión
-          </button>
+      {/* Menú móvil off-canvas */}
+      {open && (
+        <div className="sm:hidden fixed inset-0 z-[60]">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setOpen(false)}
+          />
+          {/* Panel */}
+          <div className="absolute right-0 top-0 h-full w-80 max-w-[85%] translate-x-0 bg-white shadow-xl transition-transform">
+            <div className="flex items-center justify-between px-4" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+              <span className="py-4 text-lg font-bold">Menú</span>
+              <button
+                type="button"
+                aria-label="Cerrar menú"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white/80 text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <nav className="flex flex-col gap-1 p-4">
+              <Link onClick={() => setOpen(false)} to="/" className="rounded-lg px-3 py-3 text-slate-700 hover:bg-slate-50">Inicio</Link>
+              <Link onClick={() => setOpen(false)} to="/galeria" className="rounded-lg px-3 py-3 text-slate-700 hover:bg-slate-50">Galería</Link>
+              <Link onClick={() => setOpen(false)} to="/conciencia" className="rounded-lg px-3 py-3 text-slate-700 hover:bg-slate-50">Conciencia Animal</Link>
+              <Link
+                onClick={() => setOpen(false)}
+                to="/Formulario"
+                className="mt-2 rounded-xl bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] px-3 py-3 text-center font-semibold text-white shadow-sm hover:opacity-90"
+              >
+                Reservar cita
+              </Link>
+            </nav>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
-};
-
-export default Header;
+}
