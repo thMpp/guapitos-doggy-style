@@ -4,12 +4,13 @@ import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 // Usa tu logo real: logo3.png o logo.png según tu proyecto
-import logo_icon from "@/assets/logo3.png";
+import logo_icon from "@/assets/logo4.png";
 
 const navItems = [
   { name: "Inicio", href: "#inicio" },
   { name: "Galería", href: "#galeria" },
   { name: "Conciencia Animal", href: "#conciencia" },
+  { name: "agendar", href: "#reservar" },
 ];
 
 const Header = () => {
@@ -113,7 +114,7 @@ const Header = () => {
               ))}
 
               <Button
-                onClick={() => scrollToSection("#reservar")}
+                onClick={() => scrollToSection("agendar")}
                 className="mt-2 w-full bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 text-primary-foreground"
               >
                 Reservar cita
