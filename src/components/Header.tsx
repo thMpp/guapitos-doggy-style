@@ -113,7 +113,7 @@ const Header = () => {
               ))}
 
               <Button
-                onClick={() => scrollToSection("agendar")}
+                onClick={() => scrollToSection("#agendar")}
                 className="mt-2 w-full bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 text-primary-foreground"
               >
                 Reservar cita
