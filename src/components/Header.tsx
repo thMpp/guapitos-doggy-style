@@ -9,8 +9,7 @@ import logo_icon from "@/assets/logo4.png";
 const navItems = [
   { name: "Inicio", href: "#inicio" },
   { name: "Galería", href: "#galeria" },
-  { name: "Conciencia Animal", href: "#conciencia" },
-  { name: "agendar", href: "#reservar" },
+  { name: "Conciencia Animal", href: "#conciencia" }
 ];
 
 const Header = () => {
