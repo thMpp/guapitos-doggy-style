@@ -61,7 +61,7 @@ const Header = () => {
 
           {/* CTA Reservar con tu gradiente */}
           <Button
-            onClick={() => scrollToSection("#reservar")}
+            onClick={() => scrollToSection("#agendar")}
             className="ml-2 bg-gradient-to-r from-[#ec82ae] to-[#b1fbfc] hover:opacity-90 text-primary-foreground"
           >
             Reservar cita
