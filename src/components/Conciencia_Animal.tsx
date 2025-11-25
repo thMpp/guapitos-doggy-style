@@ -113,7 +113,7 @@ const AnimalConsciousness = () => {
               Juntos podemos crear un mundo más seguro y amoroso para nuestros compañeros peludos.
             </p>
             <div className="bg-primary/10 rounded-lg p-4 mt-4">
-              <p className="text-sm font-medium text-primary">
+              <p className="text-sm font-medium text-[#e885b0]">
                 💡 Recuerda: Un animal feliz es un animal saludable. El amor y la paciencia 
                 son las mejores herramientas de cualquier cuidador responsable.
               </p>

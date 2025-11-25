@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import Logo from "@/assets/logo3.png";
+import Logo from "@/assets/pruebalogo.png";
 
 const Hero = () => {
   const scrollToSection = (sectionId: string) => {
@@ -8,7 +8,7 @@ const Hero = () => {
   };
 
   return (
-    <section id="inicio" className="min-h-screen bg-gradient-hero flex items-center pt-16">
+    <section id="inicio" className="min-h-screen bg-gradient-hero flex items-start lg:items-center pt-10 lg:pt-2">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
@@ -61,7 +61,6 @@ const Hero = () => {
                 className="rounded-2xl w-full h-auto"
               />
             </div>
-            <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-primary rounded-2xl opacity-20"></div>
           </div>
         </div>
       </div>
