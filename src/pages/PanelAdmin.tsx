@@ -570,8 +570,8 @@ const PanelAdmin = () => {
               <Card key={booking.id} className="p-5 border-primary/20 bg-card/95 backdrop-blur-sm hover:shadow-lg transition-all hover:border-primary/40 flex flex-col">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <User className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-lg text-foreground">{booking.ownerName}</h3>
+                    <Dog className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold text-lg text-foreground">{booking.petName}</h3>
                   </div>
                   <span className="px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full text-xs font-medium flex items-center gap-1">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -581,8 +581,8 @@ const PanelAdmin = () => {
 
                 <div className="space-y-3 mb-4 flex-1">
                   <div className="flex items-center gap-2 text-sm">
-                    <Dog className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium text-foreground">{booking.petName}</span>
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium text-foreground">{booking.ownerName}</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
