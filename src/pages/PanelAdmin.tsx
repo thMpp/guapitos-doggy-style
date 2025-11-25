@@ -41,7 +41,11 @@ const toYMD = (iso: string) => new Date(iso).toISOString().slice(0, 10);
 
 // Helper: ISO -> "HH:mm" en UTC
 const toHM = (iso: string) => {
+  if (!iso) return "";
   const d = new Date(iso);
+  // Si la fecha es inválida, devolvemos string vacío para evitar error visual
+  if (isNaN(d.getTime())) return "";
+  
   const hh = String(d.getUTCHours()).padStart(2, "0");
   const mm = String(d.getUTCMinutes()).padStart(2, "0");
   return `${hh}:${mm}`;
@@ -50,19 +54,18 @@ const toHM = (iso: string) => {
 
 const safeId = (val: any) => {
   if (val != null) return String(val);
-  // Fallback sin crypto:
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
 interface Booking {
-  id: string; // stringified ID_Cita when it exists
+  id: string; 
   ownerName: string;
   petName: string;
   phone: string;
   petSize: string;
-  service: string; // slug like "completo"
-  date: string; // yyyy-mm-dd
-  time: string; // HH:mm
+  service: string; 
+  date: string; 
+  time: string; 
   notes: string;
 }
 
@@ -99,21 +102,20 @@ const initialFormData: Omit<Booking, "id"> = {
 const PanelAdmin = () => {
   const { toast } = useToast();
 
-  // ahora partimos vacío y cargamos desde backend
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Form unificado (crear / editar)
+  // Form unificado
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formData, setFormData] = useState<Omit<Booking, "id">>(initialFormData);
-  const [editingBooking, setEditingBooking] = useState<Booking | null>(null); // null = creando
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
 
-  // Filtros y UI
+  // Filtros
   const [searchQuery, setSearchQuery] = useState("");
   const [filterDate, setFilterDate] = useState<Date | undefined>(undefined);
   const [filterService, setFilterService] = useState("todos");
 
-  // Cargar citas desde backend (reemplaza datos previos)
+  // Cargar citas
   useEffect(() => {
     const loadRealBookings = async () => {
       setIsLoading(true);
@@ -123,7 +125,7 @@ const PanelAdmin = () => {
         const citas = (await res.json()) as any[];
 
         const mapped: Booking[] = citas.map(mapPrismaToBooking);
-        setBookings(mapped); // REEMPLAZAMOS datos
+        setBookings(mapped);
       } catch (err: any) {
         console.error("Error cargando /citas:", err);
         toast({
@@ -139,7 +141,7 @@ const PanelAdmin = () => {
     loadRealBookings();
   }, [toast]);
 
-  // Filtrado (igual que antes)
+  // Filtrado
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
       const matchesSearch =
@@ -154,7 +156,6 @@ const PanelAdmin = () => {
     });
   }, [bookings, searchQuery, filterDate, filterService]);
 
-  // Abrir formulario para crear o editar
   const handleOpenForm = (booking: Booking | null = null) => {
     if (booking) {
       setEditingBooking(booking);
@@ -182,12 +183,12 @@ const PanelAdmin = () => {
   };
 
   // ==========================================
-  // LÓGICA CORREGIDA PARA AGREGAR CITA
+  // LÓGICA CORREGIDA: Usa las llaves correctas (Fecha, Hora, etc.)
   // ==========================================
   const handleAddBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // 1. CLIENTE: Buscar por teléfono; si no existe, crear
+      // 1. CLIENTE
       const clientesRes = await fetch(apiUrl(`clientes`));
       if (!clientesRes.ok) throw new Error("Error obteniendo clientes");
       const clientes = await clientesRes.json();
@@ -207,9 +208,7 @@ const PanelAdmin = () => {
         cliente = await newClienteRes.json();
       }
 
-      // 2. MASCOTA: Crear siempre (asociada al cliente)
-      // Nota: Si quisieras evitar duplicados de mascotas, tendrías que buscarla primero, 
-      // pero para simplificar seguimos la lógica de "nueva cita = registro de mascota" o creación directa.
+      // 2. MASCOTA
       const newMascotaRes = await fetch(apiUrl(`mascotas`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -222,7 +221,7 @@ const PanelAdmin = () => {
       if (!newMascotaRes.ok) throw new Error("Error creando mascota");
       const mascota = await newMascotaRes.json();
 
-      // 3. SERVICIO: Buscar por nombre real; si no existe, crear
+      // 3. SERVICIO
       const serviciosRes = await fetch(apiUrl(`servicios`));
       if (!serviciosRes.ok) throw new Error("Error obteniendo servicios");
       const servicios = await serviciosRes.json();
@@ -244,31 +243,23 @@ const PanelAdmin = () => {
         servicio = await newServicioRes.json();
       }
 
-      // 4. CITA: Crear finalmente usando los IDs obtenidos
+      // 4. CITA (¡Aquí estaba el error! Ahora usamos Fecha, Hora, Notas_Adicionales)
       const res = await fetch(apiUrl(`citas`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ownerName: formData.ownerName, // Se envían por si acaso el backend los usa
-          petName: formData.petName,
-          phone: formData.phone,
-          petSize: formData.petSize,
-          service: formData.service,
-          date: formData.date,
-          time: formData.time,
-          notes: formData.notes,
-          // IMPORTANTE: IDs relacionales para que la BD no guarde NULL
+          Fecha: formData.date,              // Corrección: date -> Fecha
+          Hora: formData.time,               // Corrección: time -> Hora
+          Notas_Adicionales: formData.notes || "", // Corrección: notes -> Notas_Adicionales
           ID_Mascota: mascota.ID_Mascota,
           ID_Servicio: servicio.ID_Servicio,
-          Estado: "confirmada" // Admin creando cita => confirmada
+          Estado: "confirmada"
         }),
       });
 
       if (!res.ok) throw new Error(await res.text());
       const created = await res.json();
       
-      // Construimos el objeto visual manualmente para asegurar que se vea bien en la lista
-      // sin depender de que el backend devuelva todos los "includes" (relaciones).
       const mapped: Booking = {
         id: safeId(created.ID_Cita),
         ownerName: formData.ownerName,
@@ -281,7 +272,6 @@ const PanelAdmin = () => {
         notes: formData.notes
       };
 
-      // Añadimos al inicio
       setBookings((prev) => [mapped, ...prev]);
       handleCloseForm();
       toast({ title: "Cita agregada", description: "La nueva cita ha sido agregada exitosamente" });
@@ -292,7 +282,7 @@ const PanelAdmin = () => {
   };
   // ==========================================
 
-  // Actualizar cita (PUT -> backend)
+  // Actualizar cita
   const handleUpdateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBooking) return;
@@ -303,12 +293,13 @@ const PanelAdmin = () => {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // enviamos date/time y service (slug)
+          // Mismo caso aquí: asegúrate de que tu backend soporte estos campos en PUT
+          // O cámbialos a Fecha/Hora si el PUT también falla. 
+          // Por ahora los dejo como tu código original asumía que PUT funcionaba.
           date: formData.date,
           time: formData.time,
           notes: formData.notes,
           service: formData.service,
-          // no intentamos modificar dueño/mascota/telefono en esta ruta simple
         }),
       });
 
@@ -325,7 +316,6 @@ const PanelAdmin = () => {
     }
   };
 
-  // Eliminar cita (DELETE -> backend) con optimistic UI
   const handleDelete = async (id: string) => {
     const original = [...bookings];
     setBookings((prev) => prev.filter((b) => b.id !== id));
@@ -341,7 +331,6 @@ const PanelAdmin = () => {
     }
   };
 
-  // Handlers genéricos del formulario
   const handleFormChange = (field: keyof Omit<Booking, "id">, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -470,7 +459,7 @@ const PanelAdmin = () => {
           <h2 className="text-xl font-semibold text-foreground">Citas encontradas: {filteredBookings.length}</h2>
         </div>
 
-        {/* Formulario de Agregar / Modificar Cita */}
+        {/* Formulario */}
         {isFormOpen && (
           <Card className="p-6 mb-6 border-primary/20 bg-card/95 backdrop-blur-sm">
             <h3 className="text-xl font-semibold mb-4 text-foreground">{editingBooking ? "Modificar Cita" : "Nueva Cita"}</h3>
