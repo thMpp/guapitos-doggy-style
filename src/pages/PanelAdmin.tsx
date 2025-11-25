@@ -16,6 +16,14 @@ import { cn } from "@/lib/utils";
 export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 export const apiUrl = (path: string) => new URL(path, API_BASE).toString();
 
+// Mapeo inverso para saber qué nombre guardar en BD según el slug seleccionado
+const SERVICE_NAME_BY_SLUG: Record<string, string> = {
+  "completo": "Servicio Completo",
+  "bano-basico": "Baño Básico",
+  "bano-premium": "Baño Sanitario",
+  "corte-pelo": "Corte de pelo",
+  "corte-uña": "Corte de uñas",
+};
 
 const serviceSlugFromName = (name: string) => {
   const map: Record<string, string> = {
@@ -173,16 +181,75 @@ const PanelAdmin = () => {
     setFormData(initialFormData);
   };
 
-  // Crear cita (POST -> backend)
+  // ==========================================
+  // LÓGICA CORREGIDA PARA AGREGAR CITA
+  // ==========================================
   const handleAddBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // 1. CLIENTE: Buscar por teléfono; si no existe, crear
+      const clientesRes = await fetch(apiUrl(`clientes`));
+      if (!clientesRes.ok) throw new Error("Error obteniendo clientes");
+      const clientes = await clientesRes.json();
+      
+      let cliente = clientes.find((c: any) => String(c.Telefono).trim() === formData.phone.trim());
+
+      if (!cliente) {
+        const newClienteRes = await fetch(apiUrl(`clientes`), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            Nombre: formData.ownerName,
+            Telefono: formData.phone,
+          }),
+        });
+        if (!newClienteRes.ok) throw new Error("Error creando cliente");
+        cliente = await newClienteRes.json();
+      }
+
+      // 2. MASCOTA: Crear siempre (asociada al cliente)
+      // Nota: Si quisieras evitar duplicados de mascotas, tendrías que buscarla primero, 
+      // pero para simplificar seguimos la lógica de "nueva cita = registro de mascota" o creación directa.
+      const newMascotaRes = await fetch(apiUrl(`mascotas`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Nombre: formData.petName,
+          Tamano: formData.petSize,
+          ID_Cliente: cliente.ID_Cliente,
+        }),
+      });
+      if (!newMascotaRes.ok) throw new Error("Error creando mascota");
+      const mascota = await newMascotaRes.json();
+
+      // 3. SERVICIO: Buscar por nombre real; si no existe, crear
+      const serviciosRes = await fetch(apiUrl(`servicios`));
+      if (!serviciosRes.ok) throw new Error("Error obteniendo servicios");
+      const servicios = await serviciosRes.json();
+
+      const wantedName = SERVICE_NAME_BY_SLUG[formData.service] || formData.service;
+      let servicio = servicios.find((s: any) => s.Nombre_Servicio === wantedName);
+
+      if (!servicio) {
+        const newServicioRes = await fetch(apiUrl(`servicios`), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            Nombre_Servicio: wantedName,
+            Costo: 0, 
+            Duracion_Estimada: 60,
+          }),
+        });
+        if (!newServicioRes.ok) throw new Error("Error creando servicio");
+        servicio = await newServicioRes.json();
+      }
+
+      // 4. CITA: Crear finalmente usando los IDs obtenidos
       const res = await fetch(apiUrl(`citas`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // payload "amigable" que acepta el backend
-          ownerName: formData.ownerName,
+          ownerName: formData.ownerName, // Se envían por si acaso el backend los usa
           petName: formData.petName,
           phone: formData.phone,
           petSize: formData.petSize,
@@ -190,12 +257,29 @@ const PanelAdmin = () => {
           date: formData.date,
           time: formData.time,
           notes: formData.notes,
+          // IMPORTANTE: IDs relacionales para que la BD no guarde NULL
+          ID_Mascota: mascota.ID_Mascota,
+          ID_Servicio: servicio.ID_Servicio,
+          Estado: "confirmada" // Admin creando cita => confirmada
         }),
       });
 
       if (!res.ok) throw new Error(await res.text());
       const created = await res.json();
-      const mapped = mapPrismaToBooking(created);
+      
+      // Construimos el objeto visual manualmente para asegurar que se vea bien en la lista
+      // sin depender de que el backend devuelva todos los "includes" (relaciones).
+      const mapped: Booking = {
+        id: safeId(created.ID_Cita),
+        ownerName: formData.ownerName,
+        petName: formData.petName,
+        phone: formData.phone,
+        petSize: formData.petSize,
+        service: formData.service,
+        date: formData.date,
+        time: formData.time,
+        notes: formData.notes
+      };
 
       // Añadimos al inicio
       setBookings((prev) => [mapped, ...prev]);
@@ -206,6 +290,7 @@ const PanelAdmin = () => {
       toast({ title: "Error al agregar", description: String(err?.message || err), variant: "destructive" });
     }
   };
+  // ==========================================
 
   // Actualizar cita (PUT -> backend)
   const handleUpdateBooking = async (e: React.FormEvent) => {
@@ -223,7 +308,7 @@ const PanelAdmin = () => {
           time: formData.time,
           notes: formData.notes,
           service: formData.service,
-          // no intentamos modificar dueño/mascota/telefono en esta ruta
+          // no intentamos modificar dueño/mascota/telefono en esta ruta simple
         }),
       });
 
