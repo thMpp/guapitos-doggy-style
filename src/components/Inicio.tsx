@@ -1,10 +1,21 @@
 import { Button } from "@/components/ui/button";
 import Logo from "@/assets/pruebalogo.png";
+import { apiUrl } from "./Formulario";
+import { useEffect } from "react";
 
 const Hero = () => {
+    useEffect(() => {
+    // Despertador de render
+    fetch(apiUrl("ping")) 
+      .then(() => console.log("Backend despertado ⏰"))
+      .catch(() => console.log("Backend aún durmiendo..."));
+  }, []);  
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     element?.scrollIntoView({ behavior: 'smooth' });
+    
+    
   };
 
   return (
